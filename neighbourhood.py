@@ -3,15 +3,21 @@ from typing import List, Dict
 import random
 
 class Neighourhood:
-    def __init__(self, name):
+    def __init__(self, name: str, number_residents: int):
         self.name = name
-        self.residents = [Person]
-        self.contacts = {Person: List[Person]}  # Dictionary mapping each person to a list of their contacts
+        self.residents = []
+        self.add_residents(n=number_residents)
+        
+        # self.contacts = {Person: List[Person]}  # Dictionary mapping each person to a list of their contacts
 
 
-    def add_residents(self, n):
+    def add_residents(self, n: int) -> None:
+        """"
+            Adds n residents to the neighbourhood.
+            params: n: int, number of residents to add
+        """
         for i in range(n):
-            self.residents.append(Person(f"Person {i+1} in {self.name}"))
+            self.residents.append(Person(name=f"({i+1}, {self.name})"))
         self.create_contacts()
     
 
@@ -21,8 +27,9 @@ class Neighourhood:
 
 
     def timestep(self):
-        """ Each resident has contact with at least one other resident, if
-        they are not quarantined. And each resident updates their infection status.
+        """ 
+            Each resident has contact with at least one other resident, if
+            they are not quarantined. And each resident updates their infection status.
         """
         for person in self.residents:
             if not person.quarantined:
