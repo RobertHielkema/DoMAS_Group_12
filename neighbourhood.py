@@ -1,5 +1,4 @@
 from person import Person
-from typing import List, Dict
 import random
 
 class Neighourhood:
@@ -17,7 +16,7 @@ class Neighourhood:
             params: n: int, number of residents to add
         """
         for i in range(n):
-            self.residents.append(Person(name=f"({i+1}, {self.name})"))
+            self.residents.append(Person(name=f"({i}, {self.name})"))
         self.create_contacts()
     
 

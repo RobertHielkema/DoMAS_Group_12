@@ -1,71 +1,96 @@
 import random
 from neighbourhood import Neighourhood
 from person import Person
-# import numpy as np
+import numpy as np
+from colorama import init, Fore, Back, Style
+
+init(autoreset=True)  # colors reset after each print
 
 
 class Graph:
         
     def __init__(self, number_neighbourhoods=1, number_residents=10):
-        self.edges = None
-        self.neigbourhoods = [Neighourhood(i+1, number_residents) for i in range(number_neighbourhoods)]
+        self.A = None
+        self.neigbourhoods = [Neighourhood(i, number_residents) for i in range(number_neighbourhoods)]
         self.nodes = [x for n in self.neigbourhoods for x in n.residents]
+        self.number_neighbourhoods = number_neighbourhoods
+        self.number_residents = number_residents
 
 
-    def make_ring_lattice(self, k):
+    def make_ring_lattice(self, k) -> None:
         """
             given list of nodes make ring lattice with k neighbors
 
             params: k: int, number of neighbors each node should have
-            returns: adjacency dictionary {node: set(neighbors)}
+            returns: adjacency matrix np.array of shape (n, n) where n is number of nodes
         
         """
      
         if k % 2 != 0:
             raise ValueError("k must be an even number for a symmetric ring lattice.")
 
-        nodes = self.nodes
-        n = len(nodes)
-        adjacency = {node: set() for node in nodes}
+        n = len(self.nodes)
+        A = np.zeros((n, n), dtype=int) # Adjacency matrix initialized to 0
+        for i in range(n):
+            block_start = (i // self.number_residents) * self.number_residents
+            for j in range(1, k//2 + 1):
+                A[i][(i + j) % self.number_residents + block_start] = 1  # Connect to the next j nodes
+                A[i][(i - j) % self.number_residents + block_start] = 1  # Connect to the previous j nodes
+        self.A = A
 
-        for i, node in enumerate(nodes):
-            for j in range(1, k // 2 + 1):
-                # Connect to neighbors in the "forward" direction
-                neighbor_forward = nodes[(i + j) % n]
-                adjacency[node].add(neighbor_forward)
-                # Connect to neighbors in the "backward" direction
-                neighbor_backward = nodes[(i - j) % n]
-                adjacency[node].add(neighbor_backward)
-        self.edges = adjacency
-        return adjacency
-    
-    def rewire_edges(self, p):
+    def rewire_edges(self, p) -> None:
         """
-            Given an adjacency dictionary, rewire edges with probability p.
-            params: adjacency: dict, adjacency dictionary {node: set(neighbors)}
-                    p: float, probability of rewiring each edge
-            returns: new adjacency dictionary {node: set(neighbors)}
+            Given an adjacency matrix, rewire edges with probability p.
+            params: p: float, probability of rewiring each edge
+            TODO: CHECK FUNCTION FOR ERRORS
         """
         
-        adjacency = self.edges
-        nodes = list(adjacency.keys())
-
-        for node in nodes:
-            neighbors = list(adjacency[node])
-            for neighbor in neighbors:
-                if random.random() < p:
+        A = self.A
+        n = len(A)
+        for i in range(n):
+            block_start = (i // self.number_residents) * self.number_residents
+            for j in range(i+1, n):  # Ensure each edge is considered only once
+                if A[i][j] == 1 and random.random() < p:
+                    
                     # Remove the edge
-                    adjacency[node].remove(neighbor)
+                    A[i][j] = 0
+                    A[j][i] = 0
+                    
+                    # Find a new node to connect to
+                    new_node = random.randint(block_start, block_start + self.number_residents - 1)
+                    while new_node == i or A[i][new_node] == 1:
+                        new_node = random.randint(block_start, block_start + self.number_residents - 1)
+                    print(f'rewire edge between {i} and {j} to {new_node}')
+                    # Add the new edge
+                    A[i][new_node] = 1
+                    A[new_node][i] = 1
+        self.A = A 
 
-                    # Add a new edge to a random node that is not the current node or its current neighbors
-                    potential_new_neighbors = set(nodes) - {node} - adjacency[node]
-                    if potential_new_neighbors:
-                        new_neighbor = random.choice(list(potential_new_neighbors))
-                        adjacency[node].add(new_neighbor)
-
-        self.edges = adjacency
-        return adjacency
         
-    def print_edges(self):
-        for node, neighbors in self.edges.items():
-            print(f"{node.name}: {', '.join(str(neighbor.name) for neighbor in neighbors)}")
+    def print_edges(self) -> None:
+        """
+            Print the adjacency matrix with colored edges.
+        """
+        n = len(self.A)
+        for i in range(n):
+            for j in range(0, n):
+                if self.A[i][j] == 1:
+                    print(f"{Fore.GREEN}{self.A[i][j]} ", end='')
+                else:
+                    print(f"{self.A[i][j]} ", end='')
+            print()  # New line after each row
+
+    def timestep(self) -> None:
+        A = self.A  
+        n = len(A)
+        # loop through each person and have them interact with one of their contacts
+        for i in range(n):
+            row = A[i]
+            idx = np.flatnonzero(row)
+
+            if idx.size == 0:
+                continue
+            # get index of a random contact
+            interaction = random.choice(idx)
+            print(f"Interaction between {i} and {interaction}")
+
