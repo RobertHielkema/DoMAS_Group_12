@@ -1,21 +1,32 @@
 from person import Person
 from neighbourhood import Neighourhood
 from graph import Graph
-import random
+import configparser
 
 if __name__ == "__main__":
 
-    graph = Graph(number_neighbourhoods=3, number_residents=10)
+    # Read configuration parameters
+    config = configparser.ConfigParser()
+    config.read('config.ini')   
+    num_neighbourhoods = config.getint('Parameters', 'number_of_neighbourhoods', fallback=3)
+    residents_per_neighbourhood = config.getint('Parameters', 'residents_per_neighbourhood', fallback=10)
+    num_connection = config.getint('Parameters', 'number_of_connections', fallback=4)
+    rewire_prob = config.getfloat('Parameters', 'rewire_probability', fallback=0)
 
-    graph.make_ring_lattice(4)
+    # initialize graph
+    graph = Graph(number_neighbourhoods=num_neighbourhoods, 
+                  number_residents=residents_per_neighbourhood)
+
+
+    graph.make_ring_lattice(k = num_connection)
     graph.print_edges()
     
     # make small world model
-    graph.rewire_edges(0.5)
+    graph.rewire_edges(rewire_prob)
     print("\nAfter rewiring:\n")
     graph.print_edges()
 
-    for i in range(1):
+    for i in range(10):
         print(f"\nTimestep {i+1}\n")
         graph.timestep()
 

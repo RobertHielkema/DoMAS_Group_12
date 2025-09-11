@@ -17,7 +17,7 @@ class Graph:
         self.number_residents = number_residents
 
 
-    def make_ring_lattice(self, k) -> None:
+    def make_ring_lattice(self, k: int) -> None:
         """
             given list of nodes make ring lattice with k neighbors
 
