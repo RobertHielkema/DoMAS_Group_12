@@ -81,16 +81,42 @@ class Graph:
             print()  # New line after each row
 
     def timestep(self) -> None:
+        """
+            Each resident interacts with one of their contacts, if they have any.
+            During the interaction the infection can possbily spread.
+        """
         A = self.A  
         n = len(A)
         # loop through each person and have them interact with one of their contacts
         for i in range(n):
-            row = A[i]
-            idx = np.flatnonzero(row)
+
+            # get indices of possible contacts for person i
+            idx = np.flatnonzero(A[i])
 
             if idx.size == 0:
+                # no contacts for this person, go to next person
                 continue
+
+
             # get index of a random contact
             interaction = random.choice(idx)
-            print(f"Interaction between {i} and {interaction}")
+
+            # =======================================================
+            # TODO: Put interaction logic here ↓↓↓ ;
+            
+            person1 = self.get_person(i)
+            person2 = self.get_person(interaction)
+
+            print(f"Interaction between {person1.name} and {person2.name}")
+            # =======================================================
+
+
+
+    def get_person(self, n: int) -> Person:
+        """
+            Given a node index, return the corresponding Person object.
+            params: n: int, index of the node
+            returns: Person object
+        """
+        return self.nodes[n]
 
