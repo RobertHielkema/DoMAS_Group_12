@@ -12,6 +12,7 @@ if __name__ == "__main__":
     residents_per_neighbourhood = config.getint('Parameters', 'residents_per_neighbourhood', fallback=10)
     num_connection = config.getint('Parameters', 'number_of_connections', fallback=4)
     rewire_prob = config.getfloat('Parameters', 'rewire_probability', fallback=0)
+    percentage_neighbourhood_contacts = config.getfloat('Parameters', 'percentage_neighbourhood_contacts', fallback=1)
 
     # initialize graph
     graph = Graph(number_neighbourhoods=num_neighbourhoods, 
@@ -24,11 +25,16 @@ if __name__ == "__main__":
     # make small world model
     graph.rewire_edges(rewire_prob)
     print("\nAfter rewiring:\n")
-    graph.print_edges()
+    graph.print_edges()    
 
     for i in range(10):
         print(f"\nTimestep {i+1}\n")
+        graph.make_neighbourhood_contacts(percentage=percentage_neighbourhood_contacts)
+        graph.print_edges()
+
         graph.timestep()
+        
+        graph.delete_neighbourhood_contacts()
 
 
 

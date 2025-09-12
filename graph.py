@@ -104,15 +104,52 @@ class Graph:
             # =======================================================
             # TODO: Put interaction logic here ↓↓↓ ;
             
-            person1 = self.get_person(i)
-            person2 = self.get_person(interaction)
+            person1 = self._get_person(i)
+            person2 = self._get_person(interaction)
 
             print(f"Interaction between {person1.name} and {person2.name}")
             # =======================================================
 
 
+    def make_neighbourhood_contacts(self, percentage: int) -> None:
+        """
+            Create contacts for each neighbourhood based on the adjacency matrix.
+            Each person in a neighbourhood will have contacts with people in the same neighbourhood
+            as well as people in connected neighbourhoods.
+            params: percentage: int, percentage of residents in connected neighbourhoods to be added as contacts
+        """
 
-    def get_person(self, n: int) -> Person:
+        n = len(self.nodes)
+
+        # Get indices of residents to add contacts for
+        indices = random.sample(range(n), int(n * (percentage / 100)))
+
+        for i in indices:
+            
+            # Get the neighbourhood of the person
+            neighbourhood_index = i // self.number_residents
+            
+            # Find possible contacts in other neighbourhoods
+            possible_contacts = [x for x in range(n) if self.A[i][x] == 0 and (x // self.number_residents) != neighbourhood_index]
+            new_contact = random.choice(possible_contacts)
+
+            # Add new egdes to adjacency matrix
+            self.A[i][new_contact] = 1
+            self.A[new_contact][i] = 1
+
+    def delete_neighbourhood_contacts(self) -> None:
+        """
+            Remove all contacts between different neighbourhoods.
+        """
+        n = len(self.nodes)
+        for i in range(n):
+            neighbourhood_index = i // self.number_residents
+            for j in range(n):
+                if (j // self.number_residents) != neighbourhood_index:
+                    self.A[i][j] = 0
+                    self.A[j][i] = 0
+
+    def _get_person(self, n: int) -> Person:
         """
             Given a node index, return the corresponding Person object.
             params: n: int, index of the node
