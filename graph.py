@@ -130,7 +130,7 @@ class Graph:
             neighbourhood_index = i // self.number_residents
             
             # Find possible contacts in other neighbourhoods
-            possible_contacts = [x for x in range(n) if self.A[i][x] == 0 and (x // self.number_residents) != neighbourhood_index]
+            possible_contacts = [j for j in range(n) if self.A[i][j] == 0 and not self._is_in_neighbourhood(neighbourhood_index, j)]
             new_contact = random.choice(possible_contacts)
 
             # Add new egdes to adjacency matrix
@@ -145,9 +145,18 @@ class Graph:
         for i in range(n):
             neighbourhood_index = i // self.number_residents
             for j in range(n):
-                if (j // self.number_residents) != neighbourhood_index:
+                if not self._is_in_neighbourhood(neighbourhood_index, j):
                     self.A[i][j] = 0
                     self.A[j][i] = 0
+
+    def _is_in_neighbourhood(self, neighbourhood_index: int, person_index: int) -> bool:
+        """
+            Check if a person belongs to a given neighbourhood.
+            params: neighbourhood_index: int, index of the neighbourhood
+                    person_index: int, index of the person
+            returns: bool, True if person belongs to neighbourhood, False otherwise
+        """
+        return (person_index // self.number_residents) == neighbourhood_index
 
     def _get_person(self, n: int) -> Person:
         """
