@@ -15,6 +15,23 @@ class Graph:
         self.nodes = [x for n in self.neigbourhoods for x in n.residents]
         self.number_neighbourhoods = number_neighbourhoods
         self.number_residents = number_residents
+        self.temporary_edges = []  # edges that are only present for one timestep
+
+        self.infect_first_people(p=0.01)  # Infect 1% of the population at the start of the simulation
+
+        print(f"Graph initialized with {len(self.nodes)} nodes in {self.number_neighbourhoods} neighbourhoods.")
+
+    def infect_first_people(self, p=0.01):
+        """
+            Infect a percentage p of the population at the start of the simulation.
+            params: p: float, percentage of population to infect
+        """
+        total_population = len(self.nodes)
+        n_infected = max(1, int(total_population * p))  # Ensure at least one person is infected
+        infected_people = random.sample(self.nodes, n_infected)
+        for person in infected_people:
+            person.infection_status = 'Infected'
+            print(f"{person.name} has been initially infected!")
 
 
     def make_ring_lattice(self, k: int) -> None:
@@ -60,7 +77,7 @@ class Graph:
                     new_node = random.randint(block_start, block_start + self.number_residents - 1)
                     while new_node == i or A[i][new_node] == 1:
                         new_node = random.randint(block_start, block_start + self.number_residents - 1)
-                    print(f'rewire edge between {i} and {j} to {new_node}')
+                    #print(f'rewire edge between {i} and {j} to {new_node}')
                     # Add the new edge
                     A[i][new_node] = 1
                     A[new_node][i] = 1
@@ -101,14 +118,32 @@ class Graph:
             # get index of a random contact
             interaction = random.choice(idx)
 
-            # =======================================================
-            # TODO: Put interaction logic here ↓↓↓ ;
-            
+            # run timestep for person
             person1 = self._get_person(i)
+            person1.timestep()
+
+            # interaction logic
+            
             person2 = self._get_person(interaction)
 
-            print(f"Interaction between {person1.name} and {person2.name}")
-            # =======================================================
+            #print(f"Interaction between {person1.name} and {person2.name}")
+
+            if (person1.infection_status == 'Infected'):
+                person2.infect()
+            elif (person2.infection_status == 'Infected'):
+                person1.infect()
+
+        self.print_n_infections()
+
+    def print_n_infections(self):
+        """
+            Print the total number of infections.
+        """
+        n_infected = sum(1 for person in self.nodes if person.infection_status == 'Infected')
+        n_exposed = sum(1 for person in self.nodes if person.infection_status == 'Exposed')
+        n_removed = sum(1 for person in self.nodes if person.infection_status == 'Removed')
+        n_susceptible = sum(1 for person in self.nodes if person.infection_status == 'Susceptible')
+        print(f"Total Infected: {n_infected}, Exposed: {n_exposed}, Removed: {n_removed}, Susceptible: {n_susceptible}")
 
 
     def make_neighbourhood_contacts(self, percentage: int) -> None:
@@ -133,21 +168,37 @@ class Graph:
             possible_contacts = [j for j in range(n) if self.A[i][j] == 0 and not self._is_in_neighbourhood(neighbourhood_index, j)]
             new_contact = random.choice(possible_contacts)
 
+            self.temporary_edges.append((i, new_contact))  # Store the temporary edge
+
             # Add new egdes to adjacency matrix
             self.A[i][new_contact] = 1
             self.A[new_contact][i] = 1
+
+    # def delete_neighbourhood_contacts(self) -> None:
+    #     """
+    #         Remove all contacts between different neighbourhoods.
+    #     """
+    #     print("deleting contacts")
+    #     n = len(self.nodes)
+    #     for i in range(n):
+    #         neighbourhood_index = i // self.number_residents
+    #         for j in range(n):
+    #             if not self._is_in_neighbourhood(neighbourhood_index, j):
+    #                 self.A[i][j] = 0
+    #                 self.A[j][i] = 0
+    #     print("contacts deleted")
+
 
     def delete_neighbourhood_contacts(self) -> None:
         """
             Remove all contacts between different neighbourhoods.
         """
-        n = len(self.nodes)
-        for i in range(n):
-            neighbourhood_index = i // self.number_residents
-            for j in range(n):
-                if not self._is_in_neighbourhood(neighbourhood_index, j):
-                    self.A[i][j] = 0
-                    self.A[j][i] = 0
+        print("deleting contacts")
+        for i, j in self.temporary_edges:
+            self.A[i][j] = 0
+            self.A[j][i] = 0
+        self.temporary_edges = []  # Clear the list after removing edges
+        print("contacts deleted")
 
     def _is_in_neighbourhood(self, neighbourhood_index: int, person_index: int) -> bool:
         """
