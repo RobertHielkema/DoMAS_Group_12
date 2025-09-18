@@ -22,7 +22,7 @@ class Graph:
         self.history_S = []
         self.history_R = []
 
-        self.infect_first_people(p=0.01)  # Infect 1% of the population at the start of the simulation
+        self.first_infected_index = self.infect_first_people(p=0.01)  # Infect 1% of the population at the start of the simulation
 
         print(f"Graph initialized with {len(self.nodes)} nodes in {self.number_neighbourhoods} neighbourhoods.")
 
@@ -34,9 +34,12 @@ class Graph:
         total_population = len(self.nodes)
         n_infected = max(1, int(total_population * p))  # Ensure at least one person is infected
         infected_people = random.sample(self.nodes, n_infected)
+        infected_index = [self.nodes.index(person) for person in infected_people]
         for person in infected_people:
             person.infection_status = 'Infected'
             print(f"{person.name} has been initially infected!")
+        
+        return infected_index
     
     def make_careless(self, p=0.05):
         """

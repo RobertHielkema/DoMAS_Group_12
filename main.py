@@ -27,19 +27,23 @@ if __name__ == "__main__":
     
     # make small world model
     graph.rewire_edges(rewire_prob)
-    initial_edges = graph.A.copy()
     print("\nAfter rewiring:\n")
     #graph.print_edges()    
+
+    intial_one = False
 
     for i in range(10):
         print(f"\nTimestep {i+1}\n")
         graph.make_neighbourhood_contacts(percentage=percentage_neighbourhood_contacts)
+        if not intial_one:
+            initial_edges = graph.A.copy()
+            intial_one = True
 
         graph.timestep()
         
         graph.delete_neighbourhood_contacts()
 
-    plot_graph(initial_edges)
+    plot_graph(initial_edges, graph.first_infected_index)
     
     quit()
 
