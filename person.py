@@ -27,6 +27,12 @@ class Person:
                 self.infection_status = 'Removed'
                 self.days_infected = 0
 
+            # TODO: When to quarantine? Now its immediate upon infection but maybe should be after a day or two?
+            self.quarantined = True
+            
+        elif self.infection_status == 'Removed':
+            self.quarantined = False  # after removed, no longer quarantined
+
 
     def infect(self):
         """
