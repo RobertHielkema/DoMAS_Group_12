@@ -195,7 +195,7 @@ class Graph:
     def trigger_quarantine(self, person: Person) -> None:
         """
             Trigger quarantine notification for a person's recent contacts using the app.
-            params: person: Person, the person to be quarantined
+            params: person: Person, the person who is Removed and whose contacts need to be notified
         """
         if person not in self.app:
             return  # Person does not have the app, cannot trace contacts
