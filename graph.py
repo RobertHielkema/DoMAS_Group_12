@@ -15,7 +15,7 @@ class Graph:
         self.nodes = [x for n in self.neigbourhoods for x in n.residents]
         self.number_neighbourhoods = number_neighbourhoods
         self.number_residents = number_residents
-        self.temporary_edges = []  # edges that are only present for one timestep
+        self.mask = None
 
         self.infect_first_people(p=0.01)  # Infect 1% of the population at the start of the simulation
 
@@ -54,6 +54,16 @@ class Graph:
                 A[i][(i + j) % self.number_residents + block_start] = 1  # Connect to the next j nodes
                 A[i][(i - j) % self.number_residents + block_start] = 1  # Connect to the previous j nodes
         self.A = A
+
+    def initialize_mask(self) -> None:
+        """
+            Initialize the mask to identify within-neighbourhood contacts.
+            This mask will be used to remove inter-neighbourhood contacts.
+        """
+        n = len(self.A)
+        r = self.number_residents
+        gids = np.arange(n) // r
+        self.mask = (gids[:, None] == gids[None, :])
 
     def rewire_edges(self, p) -> None:
         """
@@ -168,37 +178,17 @@ class Graph:
             possible_contacts = [j for j in range(n) if self.A[i][j] == 0 and not self._is_in_neighbourhood(neighbourhood_index, j)]
             new_contact = random.choice(possible_contacts)
 
-            self.temporary_edges.append((i, new_contact))  # Store the temporary edge
-
             # Add new egdes to adjacency matrix
             self.A[i][new_contact] = 1
             self.A[new_contact][i] = 1
-
-    # def delete_neighbourhood_contacts(self) -> None:
-    #     """
-    #         Remove all contacts between different neighbourhoods.
-    #     """
-    #     print("deleting contacts")
-    #     n = len(self.nodes)
-    #     for i in range(n):
-    #         neighbourhood_index = i // self.number_residents
-    #         for j in range(n):
-    #             if not self._is_in_neighbourhood(neighbourhood_index, j):
-    #                 self.A[i][j] = 0
-    #                 self.A[j][i] = 0
-    #     print("contacts deleted")
-
 
     def delete_neighbourhood_contacts(self) -> None:
         """
             Remove all contacts between different neighbourhoods.
         """
-        print("deleting contacts")
-        for i, j in self.temporary_edges:
-            self.A[i][j] = 0
-            self.A[j][i] = 0
-        self.temporary_edges = []  # Clear the list after removing edges
-        print("contacts deleted")
+        # In-place zeroing of inter-neighbourhood contacts
+        # If A is numeric: this keeps values where mask==True, sets other entries to 0
+        self.A *= self.mask
 
     def _is_in_neighbourhood(self, neighbourhood_index: int, person_index: int) -> bool:
         """
