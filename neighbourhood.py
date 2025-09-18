@@ -4,7 +4,7 @@ import random
 class Neighourhood:
     def __init__(self, name: str, number_residents: int):
         self.name = name
-        self.residents = []
+        self.residents = [Person]
         self.add_residents(n=number_residents)
         
         # self.contacts = {Person: List[Person]}  # Dictionary mapping each person to a list of their contacts
