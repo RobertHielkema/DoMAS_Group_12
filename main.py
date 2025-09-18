@@ -38,6 +38,8 @@ if __name__ == "__main__":
         graph.delete_neighbourhood_contacts()
 
 
+    graph.plot_history()
+
 
 
     

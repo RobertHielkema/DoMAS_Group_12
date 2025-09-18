@@ -3,6 +3,7 @@ from neighbourhood import Neighourhood
 from person import Person
 import numpy as np
 from colorama import init, Fore, Back, Style
+from plot import plot_data
 
 init(autoreset=True)  # colors reset after each print
 
@@ -16,6 +17,10 @@ class Graph:
         self.number_neighbourhoods = number_neighbourhoods
         self.number_residents = number_residents
         self.mask = None
+        self.history_E = []
+        self.history_I = []
+        self.history_S = []
+        self.history_R = []
 
         self.infect_first_people(p=0.01)  # Infect 1% of the population at the start of the simulation
 
@@ -156,16 +161,27 @@ class Graph:
             elif (person2.infection_status == 'Infected'):
                 person1.infect()
 
-        self.print_n_infections()
+        n_infected, n_exposed, n_removed, n_susceptible = self.count_n_infections()
+        self.history_I.append(n_infected)
+        self.history_E.append(n_exposed)
+        self.history_R.append(n_removed)
+        self.history_S.append(n_susceptible)
 
-    def print_n_infections(self):
-        """
-            Print the total number of infections.
-        """
+        self.print_n_infections(n_infected, n_exposed, n_removed, n_susceptible)
+
+
+    def count_n_infections(self):
         n_infected = sum(1 for person in self.nodes if person.infection_status == 'Infected')
         n_exposed = sum(1 for person in self.nodes if person.infection_status == 'Exposed')
         n_removed = sum(1 for person in self.nodes if person.infection_status == 'Removed')
         n_susceptible = sum(1 for person in self.nodes if person.infection_status == 'Susceptible')
+        return n_infected, n_exposed, n_removed, n_susceptible
+    
+
+    def print_n_infections(self, n_infected, n_exposed, n_removed, n_susceptible):
+        """
+            Print the total number of infections.
+        """
         print(f"Total Infected: {n_infected}, Exposed: {n_exposed}, Removed: {n_removed}, Susceptible: {n_susceptible}")
 
 
@@ -219,4 +235,9 @@ class Graph:
             returns: Person object
         """
         return self.nodes[n]
+    
+
+    def plot_history(self):
+        days = list(range(1, len(self.history_I) + 1))
+        plot_data(days, self.history_E, self.history_I, self.history_S, self.history_R, len(self.nodes))
 
