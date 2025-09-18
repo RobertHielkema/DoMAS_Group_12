@@ -29,7 +29,7 @@ if __name__ == "__main__":
     print("\nAfter rewiring:\n")
     #graph.print_edges()    
 
-    for i in range(1000):
+    for i in range(210):
         print(f"\nTimestep {i+1}\n")
         graph.make_neighbourhood_contacts(percentage=percentage_neighbourhood_contacts)
 

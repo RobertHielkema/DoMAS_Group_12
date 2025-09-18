@@ -36,8 +36,8 @@ class Person:
             careless individuals). This reflects the chance-based nature of transmission in the model.
         """
         if self.infection_status == 'Susceptible':
-            infection_chance = 0.15 if self.careless else 0.03
+            infection_chance = 0.8 if self.careless else 0.45
             if random.random() < infection_chance:
                 self.infection_status = 'Exposed'
                 self.days_exposed = 0
-                print(f"{self.name} has been exposed!")
+                # print(f"{self.name} has been exposed!")
