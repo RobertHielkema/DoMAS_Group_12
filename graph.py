@@ -3,25 +3,43 @@ from neighbourhood import Neighourhood
 from person import Person
 import numpy as np
 from colorama import init, Fore, Back, Style
+import copy
 
 init(autoreset=True)  # colors reset after each print
 
 
 class Graph:
         
-    def __init__(self, number_neighbourhoods=1, number_residents=10):
-        self.A = None
+    def __init__(self, number_neighbourhoods: int, 
+                 number_residents: int, num_connections: int, 
+                 careless_prob: float, rewire_prob: float):
+        """
+            Initialize the graph with a given number of neighbourhoods and residents per neighbourhood.
+            Each neighbourhood is represented as a Neighourhood object containing Person objects.
+            params: number_neighbourhoods: int, number of neighbourhoods in the graph
+                    number_residents: int, number of residents per neighbourhood
+                    num_connections: int, number of connections each node should have in the ring lattice
+                    careless_prob: float, probability of a person being careless
+                    rewire_prob: float, probability of rewiring each edge in the small-world model
+        """
         self.neigbourhoods = [Neighourhood(i, number_residents) for i in range(number_neighbourhoods)]
         self.nodes = [x for n in self.neigbourhoods for x in n.residents]
         self.number_neighbourhoods = number_neighbourhoods
         self.number_residents = number_residents
-        self.mask = None
 
-        self.infect_first_people(p=0.01)  # Infect 1% of the population at the start of the simulation
+        # TODO now everyone uses app, make it so only a percentage uses it
+        self.app = {person: [] for person in self.nodes}
+        self._infect_first_people(p=0.01)  # Infect 1% of the population at the start of the simulation
+
+        self.A = self._make_ring_lattice(k=num_connections)
+        self.copyA = copy.deepcopy(self.A)
+
+        self._make_careless(p=careless_prob)
+        self._rewire_edges(rewire_prob)
 
         print(f"Graph initialized with {len(self.nodes)} nodes in {self.number_neighbourhoods} neighbourhoods.")
 
-    def infect_first_people(self, p=0.01):
+    def _infect_first_people(self, p=0.01):
         """
             Infect a percentage p of the population at the start of the simulation.
             params: p: float, percentage of population to infect
@@ -33,7 +51,7 @@ class Graph:
             person.infection_status = 'Infected'
             print(f"{person.name} has been initially infected!")
     
-    def make_careless(self, p=0.05):
+    def _make_careless(self, p=0.05):
         """
             Make a percentage p of the population careless.
             params: p: float, percentage of population to make careless
@@ -44,10 +62,9 @@ class Graph:
         print(f"Making {n_careless} people careless.")
         for person in careless_people:
             person.careless = True
-            # print(f"{person.name} is careless!")
 
 
-    def make_ring_lattice(self, k: int) -> None:
+    def _make_ring_lattice(self, k: int) -> np.array:
         """
             given list of nodes make ring lattice with k neighbors
 
@@ -66,23 +83,12 @@ class Graph:
             for j in range(1, k//2 + 1):
                 A[i][(i + j) % self.number_residents + block_start] = 1  # Connect to the next j nodes
                 A[i][(i - j) % self.number_residents + block_start] = 1  # Connect to the previous j nodes
-        self.A = A
+        return A
 
-    def initialize_mask(self) -> None:
-        """
-            Initialize the mask to identify within-neighbourhood contacts.
-            This mask will be used to remove inter-neighbourhood contacts.
-        """
-        n = len(self.A)
-        r = self.number_residents
-        gids = np.arange(n) // r
-        self.mask = (gids[:, None] == gids[None, :])
-
-    def rewire_edges(self, p) -> None:
+    def _rewire_edges(self, p) -> None:
         """
             Given an adjacency matrix, rewire edges with probability p.
             params: p: float, probability of rewiring each edge
-            TODO: CHECK FUNCTION FOR ERRORS
         """
         
         A = self.A
@@ -120,15 +126,20 @@ class Graph:
                     print(f"{self.A[i][j]} ", end='')
             print()  # New line after each row
 
-    def timestep(self) -> None:
+    def timestep(self, i: int) -> None:
         """
             Each resident interacts with one of their contacts, if they have any.
             During the interaction the infection can possbily spread.
+            params: i: int, current timestep
         """
         A = self.A  
         n = len(A)
         # loop through each person and have them interact with one of their contacts
         for i in range(n):
+
+            # run timestep for person
+            person1 = self._get_person(i)
+            person1.timestep()
 
             # get indices of possible contacts for person i
             idx = np.flatnonzero(A[i])
@@ -141,15 +152,15 @@ class Graph:
             # get index of a random contact
             interaction = random.choice(idx)
 
-            # run timestep for person
-            person1 = self._get_person(i)
-            person1.timestep()
-
             # interaction logic
             
             person2 = self._get_person(interaction)
 
-            #print(f"Interaction between {person1.name} and {person2.name}")
+            # update history of both persons
+            self._update_app(person1, person2, i)
+            self._update_app(person2, person1, i)
+
+            # print(f"Interaction between {person1.name} and {person2.name}")
 
             if (person1.infection_status == 'Infected'):
                 person2.infect()
@@ -157,6 +168,57 @@ class Graph:
                 person1.infect()
 
         self.print_n_infections()
+
+    def _update_app(self, person1: Person, contact:Person, cur_timestep, history_length: int = 6) -> None:
+        """
+            Update the app history with a new contact for a person.
+            params: person1: Person, the person whose app history is to be updated
+                    contact: Person, the new contact to add to the app history
+        """
+        # this person does not have the app so do nothing
+        if person1 not in self.app:
+            return
+        
+        # the contact does not have the app so do nothing
+        if contact not in self.app:
+            return
+        
+        # add new contact with current timestep
+        self.app[person1].append((contact, cur_timestep))
+
+        # remove old contacts beyond the history length
+        while self.app[person1] and (cur_timestep - self.app[person1][0][1]) > history_length:
+            self.app[person1].pop(0)  # remove oldest contact if it's older than desired history_length 
+
+    def remove_quarantined(self) -> None:
+        """
+            Remove all quarantined individuals from the adjancy matrix such that no interaction will be made with those persons.
+        """
+        # Find indices of quarantined individuals
+        quarantined_indices = [i for i, person in enumerate(self.nodes) if person.quarantined]
+
+        if not quarantined_indices:
+            return  # No one is quarantined, nothing to do
+        
+        self.A = copy.deepcopy(self.copyA) # Reset adjacency matrix to original state
+
+        # Zero out their rows and columns in the adjacency matrix
+        for idx in quarantined_indices:
+            self.A[idx, :] = 0  # Zero out the entire row
+            self.A[:, idx] = 0  # Zero out the entire column
+
+        # TODO: put contacts in quarantine logic here,
+        # Idea is to loop over all presons in the app dictionary and if they are quarantined (or infected), 
+        # get their contacts and put them in quarantine as well (with some probability?)
+        for person, contact_history in self.app.items():
+            if person.quarantined:
+
+                # get history of contacts
+                contacts = list(set([contact for contact, timestep in contact_history]))
+
+                # TODO put contacts in quarantine logic here
+                
+                
 
     def print_n_infections(self):
         """
@@ -166,7 +228,8 @@ class Graph:
         n_exposed = sum(1 for person in self.nodes if person.infection_status == 'Exposed')
         n_removed = sum(1 for person in self.nodes if person.infection_status == 'Removed')
         n_susceptible = sum(1 for person in self.nodes if person.infection_status == 'Susceptible')
-        print(f"Total Infected: {n_infected}, Exposed: {n_exposed}, Removed: {n_removed}, Susceptible: {n_susceptible}")
+        n_quarantined = sum(1 for person in self.nodes if person.quarantined)
+        print(f"Total Infected: {n_infected}, Exposed: {n_exposed}, Removed: {n_removed}, Susceptible: {n_susceptible}, Quarantined: {n_quarantined}")
 
 
     def make_neighbourhood_contacts(self, percentage: int) -> None:
@@ -197,11 +260,10 @@ class Graph:
 
     def delete_neighbourhood_contacts(self) -> None:
         """
-            Remove all contacts between different neighbourhoods.
+            Remove all contacts between different neighbourhoods by resetting the adjacency matrix to its original state.
+            This ensures that only intra-neighbourhood contacts remain.
         """
-        # In-place zeroing of inter-neighbourhood contacts
-        # If A is numeric: this keeps values where mask==True, sets other entries to 0
-        self.A *= self.mask
+        self.A = copy.deepcopy(self.copyA)
 
     def _is_in_neighbourhood(self, neighbourhood_index: int, person_index: int) -> bool:
         """
