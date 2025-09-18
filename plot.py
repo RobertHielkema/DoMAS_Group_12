@@ -36,6 +36,7 @@ def plot_data(x, history_E, history_I, history_S, history_R, n_total):
     axs[0].plot(x, history_I, color="#ff0000", label='Infected [I]')
     axs[0].set_ylabel('Persons')
     axs[0].set_xlabel('Time [Days]')
+    axs[0].legend(loc='upper right')
     axs[0].set_title('Average number of persons in [E] and [I] states')
 
 
@@ -48,7 +49,8 @@ def plot_data(x, history_E, history_I, history_S, history_R, n_total):
     axs[1].set_ylabel('Persons [%]')
     axs[1].set_yticks([0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100])
     axs[1].set_yticklabels([f'{i}%' for i in range(0, 101, 10)])
-    axs[1].set_title('Infected [I]')
+    axs[1].legend(loc='upper right')
+    axs[1].set_title('average percentage of persons in each state')
     axs[1].set_xlabel('Time [Days]')
     axs[1].set_ylabel('Persons')
 
