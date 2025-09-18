@@ -21,14 +21,15 @@ if __name__ == "__main__":
 
     graph.make_ring_lattice(k = num_connection)
     graph.initialize_mask()
-    # graph.print_edges()
+    graph.make_careless(p=0.05)
+
     
     # make small world model
     graph.rewire_edges(rewire_prob)
     print("\nAfter rewiring:\n")
     #graph.print_edges()    
 
-    for i in range(10):
+    for i in range(1000):
         print(f"\nTimestep {i+1}\n")
         graph.make_neighbourhood_contacts(percentage=percentage_neighbourhood_contacts)
 

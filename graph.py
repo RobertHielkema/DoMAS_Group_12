@@ -32,6 +32,19 @@ class Graph:
         for person in infected_people:
             person.infection_status = 'Infected'
             print(f"{person.name} has been initially infected!")
+    
+    def make_careless(self, p=0.05):
+        """
+            Make a percentage p of the population careless.
+            params: p: float, percentage of population to make careless
+        """
+        total_population = len(self.nodes)
+        n_careless = int(total_population * p)
+        careless_people = random.sample(self.nodes, n_careless)
+        print(f"Making {n_careless} people careless.")
+        for person in careless_people:
+            person.careless = True
+            # print(f"{person.name} is careless!")
 
 
     def make_ring_lattice(self, k: int) -> None:
