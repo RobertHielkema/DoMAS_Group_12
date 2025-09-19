@@ -4,6 +4,7 @@ from person import Person
 import numpy as np
 from colorama import init, Fore, Back, Style
 import copy
+from app_controller import App_controller
 
 init(autoreset=True)  # colors reset after each print
 
@@ -22,7 +23,8 @@ class Graph:
                     careless_prob: float, probability of a person being careless
                     rewire_prob: float, probability of rewiring each edge in the small-world model
         """
-        self.neigbourhoods = [Neighourhood(i, number_residents) for i in range(number_neighbourhoods)]
+        self.app = App_controller(self)
+        self.neigbourhoods = [Neighourhood(i, number_residents, self.app) for i in range(number_neighbourhoods)]
         self.nodes = [x for n in self.neigbourhoods for x in n.residents]
         self.number_neighbourhoods = number_neighbourhoods
         self.number_residents = number_residents
@@ -30,7 +32,9 @@ class Graph:
 
         self._make_careless(p=careless_prob)
         # TODO now everyone uses app, make it so only a percentage uses it
-        self.app = {person: [] for person in self.nodes if not person.careless}  # Dictionary mapping each person with the app to their contact history
+        self.app_users = {person: [] for person in self.nodes if not person.careless}  # Dictionary mapping each person with the app to their contact history
+        self.app.set_app_users(self.app_users)
+
         self._infect_first_people(p=0.01)  # Infect 1% of the population at the start of the simulation
 
         self.A = self._make_ring_lattice(k=num_connections)
@@ -127,6 +131,7 @@ class Graph:
                     print(f"{self.A[i][j]} ", end='')
             print()  # New line after each row
 
+
     def timestep(self, i: int) -> None:
         """
             Each resident interacts with one of their contacts, if they have any.
@@ -158,8 +163,8 @@ class Graph:
             person2 = self._get_person(interaction)
 
             # update history of both persons
-            self._update_app(person1, person2, i)
-            self._update_app(person2, person1, i)
+            self.app.update_app(person1, person2, i)
+            self.app.update_app(person2, person1, i)
 
             # print(f"Interaction between {person1.name} and {person2.name}")
 
@@ -170,45 +175,14 @@ class Graph:
 
         self.print_n_infections()
 
-    def _update_app(self, person1: Person, contact:Person, cur_timestep, history_length: int = 4) -> None:
+
+    def quarantine_person(self, person: Person) -> None:
         """
-            Update the app history with a new contact for a person.
-            params: person1: Person, the person whose app history is to be updated
-                    contact: Person, the new contact to add to the app history
+            Quarantine a person by setting their quarantined status to True.
+            params: person: Person, the person to quarantine
         """
-        # this person does not have the app so do nothing
-        if person1 not in self.app:
-            return
-        
-        # the contact does not have the app so do nothing
-        if contact not in self.app:
-            return
-        
-        # add new contact with current timestep
-        self.app[person1].append((contact, cur_timestep))
-
-        # remove old contacts beyond the history length
-        while self.app[person1] and (cur_timestep - self.app[person1][0][1]) > history_length:
-            self.app[person1].pop(0)  # remove oldest contact if it's older than desired history_length 
-
-
-    def trigger_quarantine(self, person: Person) -> None:
-        """
-            Trigger quarantine notification for a person's recent contacts using the app.
-            params: person: Person, the person who is Removed and whose contacts need to be notified
-        """
-        if person not in self.app:
-            return  # Person does not have the app, cannot trace contacts
-
-        # Get recent contacts from the app history
-        recent_contacts = [contact for contact, timestep in self.app[person] if (timestep >= 0)]
-
-        # TODO Decide on quarantine probability and implement it here
-        # maybe use a parameter for this
-        for contact in recent_contacts:
-            if random.random() < 0.5:   
-                contact.quarantined = True
-                print(f"{contact.name} is quarantined due to contact with {person.name}.")
+        person.quarantined = True
+        print(f"{person.name} is quarantined.")
 
 
     def remove_quarantined(self) -> None:

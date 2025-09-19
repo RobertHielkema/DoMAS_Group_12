@@ -1,22 +1,23 @@
 from person import Person
 import random
+from app_controller import App_controller
 
 class Neighourhood:
-    def __init__(self, name: str, number_residents: int):
+    def __init__(self, name: str, number_residents: int, app: App_controller):
         self.name = name
         self.residents = [Person]
-        self.add_residents(n=number_residents)
+        self.add_residents(n=number_residents, app=app)
         
         # self.contacts = {Person: List[Person]}  # Dictionary mapping each person to a list of their contacts
 
 
-    def add_residents(self, n: int) -> None:
+    def add_residents(self, n: int, app: App_controller) -> None:
         """"
             Adds n residents to the neighbourhood.
             params: n: int, number of residents to add
         """
         for i in range(n):
-            self.residents.append(Person(name=f"({i}, {self.name})"))
+            self.residents.append(Person(name=f"({i}, {self.name})", app=app))
         self.create_contacts()
     
 

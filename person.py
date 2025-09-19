@@ -1,14 +1,16 @@
 import random
 import math
+from app_controller import App_controller
 
 class Person:
-    def __init__(self, name):
+    def __init__(self, name, app: App_controller):
         self.name = name
         self.infection_status = 'Susceptible'
         self.days_exposed = 0
         self.days_infected = 0
         self.quarantined = False
         self.careless = False
+        self.app = app
     
 
     def timestep(self):
@@ -26,6 +28,8 @@ class Person:
             if random.random() < p:
                 self.infection_status = 'Removed'
                 self.days_infected = 0
+                if self.app:
+                    self.app.trigger_quarantine(self)
 
             # TODO: When to quarantine? Now its immediate upon infection but maybe should be after a day or two?
             self.quarantined = True
