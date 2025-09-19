@@ -5,6 +5,7 @@ import numpy as np
 from colorama import init, Fore, Back, Style
 import copy
 from app_controller import App_controller
+from plot import plot_data
 
 init(autoreset=True)  # colors reset after each print
 
@@ -35,7 +36,12 @@ class Graph:
         self.app_users = {person: [] for person in self.nodes if not person.careless}  # Dictionary mapping each person with the app to their contact history
         self.app.set_app_users(self.app_users)
 
-        self._infect_first_people(p=0.01)  # Infect 1% of the population at the start of the simulation
+        self.history_E = []
+        self.history_I = []
+        self.history_S = []
+        self.history_R = []
+
+        self.first_infected_index = self._infect_first_people(p=0.01)  # Infect 1% of the population at the start of the simulation
 
         self.A = self._make_ring_lattice(k=num_connections)
         self.copyA = copy.deepcopy(self.A)
@@ -52,9 +58,11 @@ class Graph:
         total_population = len(self.nodes)
         n_infected = max(1, int(total_population * p))  # Ensure at least one person is infected
         infected_people = random.sample(self.nodes, n_infected)
+        infected_index = [self.nodes.index(person) for person in infected_people]
         for person in infected_people:
             person.infection_status = 'Infected'
             print(f"{person.name} has been initially infected!")
+        return infected_index
     
     def _make_careless(self, p=0.05):
         """
@@ -173,7 +181,13 @@ class Graph:
             elif (person2.infection_status == 'Infected'):
                 person1.infect()
 
-        self.print_n_infections()
+        n_infected, n_exposed, n_removed, n_susceptible = self.count_n_infections()
+        self.history_I.append(n_infected)
+        self.history_E.append(n_exposed)
+        self.history_R.append(n_removed)
+        self.history_S.append(n_susceptible)
+
+        self.print_n_infections(n_infected, n_exposed, n_removed, n_susceptible)
 
 
     def quarantine_person(self, person: Person) -> None:
@@ -214,14 +228,18 @@ class Graph:
                 
                 
 
-    def print_n_infections(self):
-        """
-            Print the total number of infections.
-        """
+    def count_n_infections(self):
         n_infected = sum(1 for person in self.nodes if person.infection_status == 'Infected')
         n_exposed = sum(1 for person in self.nodes if person.infection_status == 'Exposed')
         n_removed = sum(1 for person in self.nodes if person.infection_status == 'Removed')
         n_susceptible = sum(1 for person in self.nodes if person.infection_status == 'Susceptible')
+        return n_infected, n_exposed, n_removed, n_susceptible
+    
+
+    def print_n_infections(self, n_infected, n_exposed, n_removed, n_susceptible):
+        """
+            Print the total number of infections.
+        """
         n_quarantined = sum(1 for person in self.nodes if person.quarantined)
         print(f"Total Infected: {n_infected}, Exposed: {n_exposed}, Removed: {n_removed}, Susceptible: {n_susceptible}, Quarantined: {n_quarantined}")
 
@@ -275,4 +293,9 @@ class Graph:
             returns: Person object
         """
         return self.nodes[n]
+    
+
+    def plot_history(self):
+        days = list(range(1, len(self.history_I) + 1))
+        plot_data(days, self.history_E, self.history_I, self.history_S, self.history_R, len(self.nodes))
 
