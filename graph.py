@@ -182,7 +182,6 @@ class Graph:
             params: person: Person, the person to quarantine
         """
         person.quarantined = True
-        print(f"{person.name} is quarantined.")
 
 
     def remove_quarantined(self) -> None:

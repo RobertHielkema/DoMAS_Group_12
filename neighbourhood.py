@@ -5,7 +5,7 @@ from app_controller import App_controller
 class Neighourhood:
     def __init__(self, name: str, number_residents: int, app: App_controller):
         self.name = name
-        self.residents = [Person]
+        self.residents = []
         self.add_residents(n=number_residents, app=app)
         
         # self.contacts = {Person: List[Person]}  # Dictionary mapping each person to a list of their contacts

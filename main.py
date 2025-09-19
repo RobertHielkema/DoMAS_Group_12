@@ -23,8 +23,8 @@ if __name__ == "__main__":
 
     for i in range(210):
         print(f"\nTimestep {i+1}\n")
-        if include_quarantining:
-            graph.remove_quarantined()
+        # if include_quarantining:
+        #     graph.remove_quarantined()
 
         graph.make_neighbourhood_contacts(percentage=percentage_neighbourhood_contacts)
 
