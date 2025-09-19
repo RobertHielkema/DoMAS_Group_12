@@ -20,7 +20,9 @@ if __name__ == "__main__":
                   num_connections=num_connection,
                   careless_prob=0.05,
                   rewire_prob=rewire_prob)
-
+    
+    initial_edges = None
+    intial_one = False
 
     for i in range(210):
         print(f"\nTimestep {i+1}\n")
