@@ -32,7 +32,7 @@ if __name__ == "__main__":
         graph.make_neighbourhood_contacts(percentage=percentage_neighbourhood_contacts)
 
         
-        if i % 7 == 0:
+        if i % 30 == 0:
             edge_graph = graph.A.copy()
             infected_ids = graph._get_infected_ids()
             edge_graphs.append((edge_graph, infected_ids))
