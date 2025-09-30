@@ -23,7 +23,7 @@ if __name__ == "__main__":
     
     edge_graphs = []
 
-    for i in range(5):
+    for i in range(210):
         print(f"\nTimestep {i+1}\n")
         # if include_quarantining:
         #     graph.remove_quarantined()
@@ -32,11 +32,11 @@ if __name__ == "__main__":
         graph.make_neighbourhood_contacts(percentage=percentage_neighbourhood_contacts)
 
         
-        #i % 7 == 0
-        edge_graph = graph.A.copy()
-        infected_ids = graph._get_infected_ids()
-        edge_graphs.append((edge_graph, infected_ids))
-        
+        if i % 7 == 0:
+            edge_graph = graph.A.copy()
+            infected_ids = graph._get_infected_ids()
+            edge_graphs.append((edge_graph, infected_ids))
+            
 
         graph.timestep(i=i)
         
