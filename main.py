@@ -21,26 +21,30 @@ if __name__ == "__main__":
                   careless_prob=0.05,
                   rewire_prob=rewire_prob)
     
-    initial_edges = None
-    intial_one = False
+    edge_graphs = []
 
-    for i in range(210):
+    for i in range(5):
         print(f"\nTimestep {i+1}\n")
         # if include_quarantining:
         #     graph.remove_quarantined()
 
+
         graph.make_neighbourhood_contacts(percentage=percentage_neighbourhood_contacts)
-        if not intial_one:
-            initial_edges = graph.A.copy()
-            intial_one = True
+
+        
+        #i % 7 == 0
+        edge_graph = graph.A.copy()
+        infected_ids = graph._get_infected_ids()
+        edge_graphs.append((edge_graph, infected_ids))
+        
 
         graph.timestep(i=i)
         
         graph.delete_neighbourhood_contacts()
 
-    plot_graph(initial_edges, graph.first_infected_index)
-    
-    quit()
+    for g in edge_graphs:
+        plot_graph(*g, i+1)
+
 
     graph.plot_history()
 

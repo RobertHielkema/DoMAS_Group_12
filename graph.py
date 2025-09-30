@@ -20,7 +20,22 @@ class Graph:
             Each neighbourhood is represented as a Neighourhood object containing Person objects.
             params: number_neighbourhoods: int, number of neighbourhoods in the graph
                     number_residents: int, number of residents per neighbourhood
-                    num_connections: int, number of connections each node should have in the ring lattice
+                    num_confor i in range(210):
+        print(f"\nTimestep {i+1}\n")
+        graph.make_neighbourhood_contacts(percentage=percentage_neighbourhood_contacts)
+        if not intial_one:
+            initial_edges = graph.A.copy()
+            intial_one = True
+
+        graph.timestep()
+        
+        graph.delete_neighbourhood_contacts()
+
+    plot_graph(initial_edges, graph.first_infected_index)
+    
+    quit()
+
+    graph.plot_history()nections: int, number of connections each node should have in the ring lattice
                     careless_prob: float, probability of a person being careless
                     rewire_prob: float, probability of rewiring each edge in the small-world model
         """
@@ -44,9 +59,9 @@ class Graph:
         self.first_infected_index = self._infect_first_people(p=0.01)  # Infect 1% of the population at the start of the simulation
 
         self.A = self._make_ring_lattice(k=num_connections)
-        self.copyA = copy.deepcopy(self.A)
 
         self._rewire_edges(rewire_prob)
+        self.copyA = copy.deepcopy(self.A)
 
         print(f"Graph initialized with {len(self.nodes)} nodes in {self.number_neighbourhoods} neighbourhoods.")
 
@@ -277,6 +292,7 @@ class Graph:
         """
         self.A = copy.deepcopy(self.copyA)
 
+
     def _is_in_neighbourhood(self, neighbourhood_index: int, person_index: int) -> bool:
         """
             Check if a person belongs to a given neighbourhood.
@@ -293,6 +309,10 @@ class Graph:
             returns: Person object
         """
         return self.nodes[n]
+    
+
+    def _get_infected_ids(self) -> list[int]:
+        return [i for i in range(len(self.nodes)) if self.nodes[i].infection_status == "Infected"]
     
 
     def plot_history(self):
