@@ -60,8 +60,9 @@ class Graph:
 
         self.A = self._make_ring_lattice(k=num_connections)
 
-        self._rewire_edges(rewire_prob)
+        
         self.copyA = copy.deepcopy(self.A)
+        self._rewire_edges(rewire_prob)
 
         print(f"Graph initialized with {len(self.nodes)} nodes in {self.number_neighbourhoods} neighbourhoods.")
 
