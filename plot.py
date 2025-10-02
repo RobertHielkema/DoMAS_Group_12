@@ -1,9 +1,12 @@
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def plot_data(x, history_E, history_I, history_S, history_R, n_total):
 
+    # uncomment to use moving average
     # count moving average with window size 2
+    '''
     window_size = 3
     history_E = [
         sum(history_E[max(0, i - window_size): min(len(history_E), i + window_size + 1)]) /
@@ -28,7 +31,13 @@ def plot_data(x, history_E, history_I, history_S, history_R, n_total):
         len(history_R[max(0, i - window_size): min(len(history_R), i + window_size + 1)]) 
         for i in range(len(history_R))
     ]
+    '''
 
+    history_E, history_I, history_S, history_R =  np.array(history_E), np.array(history_I), np.array(history_S), np.array(history_R)
+    history_E = history_E.mean(axis=0)
+    history_I = history_I.mean(axis=0)
+    history_S = history_S.mean(axis=0)
+    history_R = history_R.mean(axis=0)
 
     fig, axs = plt.subplots(2, 1, figsize=(8, 6))  # 2 rows, 1 column
 
@@ -38,6 +47,7 @@ def plot_data(x, history_E, history_I, history_S, history_R, n_total):
     axs[0].set_xlabel('Time [Days]')
     axs[0].legend(loc='upper right')
     axs[0].set_title('Average number of persons in [E] and [I] states')
+    axs[0].set_xticks(range(1, 210, 10))
 
 
     history_E = [E / n_total * 100 for E in history_E]
@@ -53,7 +63,10 @@ def plot_data(x, history_E, history_I, history_S, history_R, n_total):
     axs[1].set_title('average percentage of persons in each state')
     axs[1].set_xlabel('Time [Days]')
     axs[1].set_ylabel('Persons')
+    axs[1].set_xticks(range(1, 210, 5))
+    axs[1].tick_params(axis='x', rotation=90)
 
     plt.tight_layout()
 
     plt.show()
+    

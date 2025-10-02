@@ -6,6 +6,7 @@ from colorama import init, Fore, Back, Style
 import copy
 from app_controller import App_controller
 from plot import plot_data
+import networkx as nx
 
 init(autoreset=True)  # colors reset after each print
 
@@ -315,7 +316,43 @@ class Graph:
         return [i for i in range(len(self.nodes)) if self.nodes[i].infection_status == "Infected"]
     
 
-    def plot_history(self):
+    def _fix_node_positions(self) -> dict:
+        pos = {}
+        cols = 6 
+        space_between_nodes = 30 
+
+        for i in range(self.number_neighbourhoods):
+            start = i * self.number_residents
+            end = start + self.number_residents
+            nodes = list(range(start, end))
+            G_neighbourhood = nx.Graph()
+            for u in nodes:
+                for v in nodes:
+                    if self.A[u][v] == 1:
+                        G_neighbourhood.add_edge(u, v)
+            neighbourhood_pos = nx.spring_layout(G_neighbourhood, seed=i)
+
+            between_x = (i % cols) * space_between_nodes
+            between_y = (i // cols) * space_between_nodes
+            x_max = 0
+            y_max = 0
+
+            for node, (x, y) in neighbourhood_pos.items():
+                new_x = x * 10 + between_x
+                new_y = y * 10 + between_y
+                if new_x > x_max:
+                    x_max = new_x
+                if new_y > y_max:
+                    y_max = new_y
+                pos[node] = (new_x, new_y)
+
+        
+
+        return pos, x_max, y_max
+
+    
+
+    def plot_history(self, history_E, history_I, history_S, history_R):
         days = list(range(1, len(self.history_I) + 1))
-        plot_data(days, self.history_E, self.history_I, self.history_S, self.history_R, len(self.nodes))
+        plot_data(days, history_E, history_I, history_S, history_R, len(self.nodes))
 
