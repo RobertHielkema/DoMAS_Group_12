@@ -15,7 +15,8 @@ class Graph:
         
     def __init__(self, number_neighbourhoods: int, 
                  number_residents: int, num_connections: int, 
-                 careless_prob: float, rewire_prob: float):
+                 careless_prob: float, rewire_prob: float,
+                 include_quarantining: bool):
         """
             Initialize the graph with a given number of neighbourhoods and residents per neighbourhood.
             Each neighbourhood is represented as a Neighourhood object containing Person objects.
@@ -24,19 +25,24 @@ class Graph:
                     num_connections: int, number of connections each node should have in the ring lattice
                     careless_prob: float, probability of a person being careless
                     rewire_prob: float, probability of rewiring each edge in the small-world model
+                    include_quarantining: bool, whether to include quarantining in the simulation
         """
         self.app = App_controller(self)
         self.neigbourhoods = [Neighourhood(i, number_residents, self.app) for i in range(number_neighbourhoods)]
         self.nodes = [x for n in self.neigbourhoods for x in n.residents]
         self.number_neighbourhoods = number_neighbourhoods
         self.number_residents = number_residents
+        self.include_quarantining = include_quarantining
 
 
         self._make_careless(p=careless_prob)
 
         # Dictionary mapping each person with the app to their contact history
-        self.app_users = {person: [] for person in self.nodes if not person.careless}  
-        self.app.set_app_users(self.app_users)
+        self.app_users = {person: [] for person in self.nodes if not person.careless}  # Dictionary mapping each person with the app to their contact history
+        if self.include_quarantining:
+            self.app.set_app_users(self.app_users)
+        else:
+            self.app.set_app_users({})  # No one has the app if quarantining is not included
 
         self.history_E = []
         self.history_I = []
@@ -201,6 +207,22 @@ class Graph:
         person.quarantined = True
 
 
+    def remove_quarantined(self) -> None:
+        """
+            Remove all quarantined individuals from the adjancy matrix such that no interaction will be made with those persons.
+        """
+        # Find indices of quarantined individuals
+        quarantined_indices = [i for i, person in enumerate(self.nodes) if person.quarantined]
+
+        if not quarantined_indices:
+            return  # No one is quarantined, nothing to do
+
+        # Zero out their rows and columns in the adjacency matrix
+        for idx in quarantined_indices:
+            self.A[idx, :] = 0  # Zero out the entire row
+            self.A[:, idx] = 0  # Zero out the entire column
+                
+                
     def count_n_infections(self):
         n_infected = sum(1 for person in self.nodes if person.infection_status == 'Infected')
         n_exposed = sum(1 for person in self.nodes if person.infection_status == 'Exposed')
@@ -250,6 +272,8 @@ class Graph:
             This ensures that only intra-neighbourhood contacts remain.
         """
         self.A = copy.deepcopy(self.copyA)
+        if self.include_quarantining:
+            self.remove_quarantined()
 
 
     def _is_in_neighbourhood(self, neighbourhood_index: int, person_index: int) -> bool:

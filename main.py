@@ -18,14 +18,15 @@ if __name__ == "__main__":
 
     history_I, history_E, history_S, history_R = [], [], [], []
 
-    for i in range(100):
+    for i in range(1):
         print(f"Simulation run {i+1}/100")
         # initialize graph
         graph = Graph(number_neighbourhoods=num_neighbourhoods, 
                     number_residents=residents_per_neighbourhood,
                     num_connections=num_connection,
                     careless_prob=0.05,
-                    rewire_prob=rewire_prob)
+                    rewire_prob=rewire_prob,
+                    include_quarantining=include_quarantining)
         
         edge_graphs = []
         pos, x_max, y_max = graph._fix_node_positions()
