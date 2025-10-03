@@ -21,22 +21,7 @@ class Graph:
             Each neighbourhood is represented as a Neighourhood object containing Person objects.
             params: number_neighbourhoods: int, number of neighbourhoods in the graph
                     number_residents: int, number of residents per neighbourhood
-                    num_confor i in range(210):
-        print(f"\nTimestep {i+1}\n")
-        graph.make_neighbourhood_contacts(percentage=percentage_neighbourhood_contacts)
-        if not intial_one:
-            initial_edges = graph.A.copy()
-            intial_one = True
-
-        graph.timestep()
-        
-        graph.delete_neighbourhood_contacts()
-
-    plot_graph(initial_edges, graph.first_infected_index)
-    
-    quit()
-
-    graph.plot_history()nections: int, number of connections each node should have in the ring lattice
+                    num_connections: int, number of connections each node should have in the ring lattice
                     careless_prob: float, probability of a person being careless
                     rewire_prob: float, probability of rewiring each edge in the small-world model
         """
@@ -48,8 +33,9 @@ class Graph:
 
 
         self._make_careless(p=careless_prob)
-        # TODO now everyone uses app, make it so only a percentage uses it
-        self.app_users = {person: [] for person in self.nodes if not person.careless}  # Dictionary mapping each person with the app to their contact history
+
+        # Dictionary mapping each person with the app to their contact history
+        self.app_users = {person: [] for person in self.nodes if not person.careless}  
         self.app.set_app_users(self.app_users)
 
         self.history_E = []
@@ -57,7 +43,8 @@ class Graph:
         self.history_S = []
         self.history_R = []
 
-        self.first_infected_index = self._infect_first_people(p=0.01)  # Infect 1% of the population at the start of the simulation
+        # Infect 1% of the population at the start of the simulation
+        self.first_infected_index = self._infect_first_people(p=0.01)  
 
         self.A = self._make_ring_lattice(k=num_connections)
 
@@ -214,36 +201,6 @@ class Graph:
         person.quarantined = True
 
 
-    def remove_quarantined(self) -> None:
-        """
-            Remove all quarantined individuals from the adjancy matrix such that no interaction will be made with those persons.
-        """
-        # Find indices of quarantined individuals
-        quarantined_indices = [i for i, person in enumerate(self.nodes) if person.quarantined]
-
-        if not quarantined_indices:
-            return  # No one is quarantined, nothing to do
-        
-        self.A = copy.deepcopy(self.copyA) # Reset adjacency matrix to original state
-
-        # Zero out their rows and columns in the adjacency matrix
-        for idx in quarantined_indices:
-            self.A[idx, :] = 0  # Zero out the entire row
-            self.A[:, idx] = 0  # Zero out the entire column
-
-        # TODO: put contacts in quarantine logic here,
-        # Idea is to loop over all presons in the app dictionary and if they are quarantined (or infected), 
-        # get their contacts and put them in quarantine as well (with some probability?)
-        for person, contact_history in self.app.items():
-            if person.quarantined:
-
-                # get history of contacts
-                contacts = list(set([contact for contact, timestep in contact_history]))
-
-                # TODO put contacts in quarantine logic here
-                
-                
-
     def count_n_infections(self):
         n_infected = sum(1 for person in self.nodes if person.infection_status == 'Infected')
         n_exposed = sum(1 for person in self.nodes if person.infection_status == 'Exposed')
@@ -286,6 +243,7 @@ class Graph:
             self.A[i][new_contact] = 1
             self.A[new_contact][i] = 1
 
+   
     def delete_neighbourhood_contacts(self) -> None:
         """
             Remove all contacts between different neighbourhoods by resetting the adjacency matrix to its original state.
@@ -350,7 +308,6 @@ class Graph:
 
         return pos, x_max, y_max
 
-    
 
     def plot_history(self, history_E, history_I, history_S, history_R):
         days = list(range(1, len(self.history_I) + 1))
