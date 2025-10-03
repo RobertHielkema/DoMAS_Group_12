@@ -70,7 +70,7 @@ class Graph:
         infected_index = [self.nodes.index(person) for person in infected_people]
         for person in infected_people:
             person.infection_status = 'Infected'
-            print(f"{person.name} has been initially infected!")
+            #print(f"{person.name} has been initially infected!")
         return infected_index
     
     def _make_careless(self, p=0.05):
@@ -81,7 +81,7 @@ class Graph:
         total_population = len(self.nodes)
         n_careless = int(total_population * p)
         careless_people = random.sample(self.nodes, n_careless)
-        print(f"Making {n_careless} people careless.")
+        #print(f"Making {n_careless} people careless.")
         for person in careless_people:
             person.careless = True
 
@@ -196,7 +196,7 @@ class Graph:
         self.history_R.append(n_removed)
         self.history_S.append(n_susceptible)
 
-        self.print_n_infections(n_infected, n_exposed, n_removed, n_susceptible)
+        #self.print_n_infections(n_infected, n_exposed, n_removed, n_susceptible)
 
 
     def quarantine_person(self, person: Person) -> None:

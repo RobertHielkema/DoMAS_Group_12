@@ -18,7 +18,7 @@ if __name__ == "__main__":
 
     history_I, history_E, history_S, history_R = [], [], [], []
 
-    for i in range(1):
+    for i in range(100):
         print(f"Simulation run {i+1}/100")
         # initialize graph
         graph = Graph(number_neighbourhoods=num_neighbourhoods, 
@@ -32,7 +32,7 @@ if __name__ == "__main__":
         pos, x_max, y_max = graph._fix_node_positions()
 
         for i in range(210):
-            print(f"\nTimestep {i+1}\n")
+            #print(f"\nTimestep {i+1}\n")
 
             graph.make_neighbourhood_contacts(percentage=percentage_neighbourhood_contacts)
 
