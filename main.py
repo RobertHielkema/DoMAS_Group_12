@@ -29,7 +29,7 @@ if __name__ == "__main__":
                     include_quarantining=include_quarantining)
         
         edge_graphs = []
-        pos, x_max, y_max = graph._fix_node_positions()
+        #pos, x_max, y_max = graph._fix_node_positions()
 
         for i in range(210):
             #print(f"\nTimestep {i+1}\n")
