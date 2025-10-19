@@ -13,7 +13,7 @@ if __name__ == "__main__":
     rewire_prob = config.getfloat('Parameters', 'rewire_probability', fallback=0)
     percentage_neighbourhood_contacts = config.getfloat('Parameters', 'percentage_neighbourhood_contacts', fallback=1)
     include_quarantining = config.getboolean('Parameters', 'include_quarantining', fallback=True)
-
+    app_usage_rate = config.getfloat('Parameters', 'app_usage_rate', fallback=1.0)
 
 
     history_I, history_E, history_S, history_R = [], [], [], []

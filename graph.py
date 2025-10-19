@@ -16,7 +16,8 @@ class Graph:
     def __init__(self, number_neighbourhoods: int, 
                  number_residents: int, num_connections: int, 
                  careless_prob: float, rewire_prob: float,
-                 include_quarantining: bool):
+                 include_quarantining: bool,
+                 app_usage_rate: float = 1.0):
         """
             Initialize the graph with a given number of neighbourhoods and residents per neighbourhood.
             Each neighbourhood is represented as a Neighourhood object containing Person objects.
@@ -37,9 +38,8 @@ class Graph:
 
         self._make_careless(p=careless_prob)
 
-        # Dictionary mapping each person with the app to their contact history
-        self.app_users = {person: [] for person in self.nodes if not person.careless}  # Dictionary mapping each person with the app to their contact history
         if self.include_quarantining:
+            self.app_users = self._get_app_users(rate=app_usage_rate)
             self.app.set_app_users(self.app_users)
         else:
             self.app.set_app_users({})  # No one has the app if quarantining is not included
@@ -84,6 +84,17 @@ class Graph:
         #print(f"Making {n_careless} people careless.")
         for person in careless_people:
             person.careless = True
+
+
+    def _get_app_users(self, rate: float):
+        """
+            Set app users based on the given rate.
+            params: rate: float, percentage of non-careless population to use the app
+        """
+        self.potential_app_users = {person: [] for person in self.nodes if not person.careless}
+        n_app_users = int(len(self.potential_app_users) * rate)
+        app_users = random.sample(list(self.potential_app_users.keys()), n_app_users)
+        return {person: [] for person in app_users}
 
 
     def _make_ring_lattice(self, k: int) -> np.array:
