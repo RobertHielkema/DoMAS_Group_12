@@ -26,10 +26,13 @@ if __name__ == "__main__":
                     num_connections=num_connection,
                     careless_prob=0.05,
                     rewire_prob=rewire_prob,
-                    include_quarantining=include_quarantining)
+                    include_quarantining=include_quarantining,
+                    app_usage_rate=app_usage_rate)
         
         edge_graphs = []
         #pos, x_max, y_max = graph._fix_node_positions()
+
+        print(f"App usage rate: {app_usage_rate}")
 
         for i in range(210):
             #print(f"\nTimestep {i+1}\n")
