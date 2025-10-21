@@ -70,3 +70,56 @@ def plot_data(x, history_E, history_I, history_S, history_R, n_total):
 
     plt.show()
     
+def plot_quarantained_bar(history_quarantained):
+    infected_means = []
+    non_infected_means = []
+    total_counts = []
+
+    for run in history_quarantained:
+        run = np.array(run)
+        valid = run[run != -1]  # ignore padding
+        if len(valid) == 0:
+            continue
+
+        infected_count = np.sum(valid == 1)
+        non_infected_count = np.sum(valid == 0)
+        total = infected_count + non_infected_count
+
+        infected_means.append(infected_count / total)
+        non_infected_means.append(non_infected_count / total)
+        total_counts.append(total)
+
+    # Mean of means (each run equally weighted)
+    infected_ratio = np.mean(infected_means)
+    non_infected_ratio = np.mean(non_infected_means)
+    avg_total = np.mean(total_counts)
+
+    # Convert back to expected number of persons (average total * mean ratio)
+    infected_avg = infected_ratio * avg_total
+    non_infected_avg = non_infected_ratio * avg_total
+
+    # Convert to percentages for labels
+    infected_pct = infected_ratio * 100
+    non_infected_pct = non_infected_ratio * 100
+
+    labels = ['Infected & quarantined', 'Healthy & quarantined']
+    values = [infected_avg, non_infected_avg]
+    colors = ['tomato', 'skyblue']
+
+    plt.figure(figsize=(5, 4))
+    bars = plt.bar(labels, values, color=colors)
+    plt.ylabel('Average number of persons')
+    plt.title('Average composition of quarantined population across runs')
+    plt.grid(axis='y', linestyle='--', alpha=0.4)
+
+    # Add inline percentage labels
+    for bar, pct in zip(bars, [infected_pct, non_infected_pct]):
+        height = bar.get_height()
+        plt.text(
+            bar.get_x() + bar.get_width() / 2,
+            height / 2,
+            f"{pct:.1f}%",
+            ha='center', va='center', color='white', fontsize=12, fontweight='bold'
+        )
+
+    plt.show()

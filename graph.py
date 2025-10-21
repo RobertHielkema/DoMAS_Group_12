@@ -5,7 +5,7 @@ import numpy as np
 from colorama import init, Fore, Back, Style
 import copy
 from app_controller import App_controller
-from plot import plot_data
+from plot import plot_data, plot_quarantained_bar
 import networkx as nx
 
 init(autoreset=True)  # colors reset after each print
@@ -48,6 +48,8 @@ class Graph:
         self.history_I = []
         self.history_S = []
         self.history_R = []
+
+        self.history_quarantined = []
 
         # Infect 1% of the population at the start of the simulation
         self.first_infected_index = self._infect_first_people(p=0.01)  
@@ -217,6 +219,12 @@ class Graph:
         """
         person.quarantined = True
 
+        # check whether a person is correctly quarantined in history
+        if person.infection_status == 'Infected' or person.infection_status == 'Exposed':
+            self.history_quarantined.append(1)
+        else:
+            self.history_quarantined.append(0)
+
 
     def remove_quarantined(self) -> None:
         """
@@ -348,3 +356,6 @@ class Graph:
         days = list(range(1, len(self.history_I) + 1))
         plot_data(days, history_E, history_I, history_S, history_R, len(self.nodes))
 
+
+    def plot_quarantained(self, quarantined_history):
+        plot_quarantained_bar(quarantined_history)

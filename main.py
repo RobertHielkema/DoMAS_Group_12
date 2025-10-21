@@ -18,9 +18,9 @@ if __name__ == "__main__":
     app_usage_rate = config.getfloat('Parameters', 'app_usage_rate', fallback=1.0)
 
 
-    history_I, history_E, history_S, history_R = [], [], [], []
+    history_I, history_E, history_S, history_R, history_quarantaine = [], [], [], [], []
 
-    for i in range(100):
+    for i in range(5):
         print(f"Simulation run {i+1}/100")
         # initialize graph
         graph = Graph(number_neighbourhoods=num_neighbourhoods, 
@@ -53,16 +53,22 @@ if __name__ == "__main__":
         # uncomment to plot graphs at each 6th timestep
         #for idx, g in enumerate(edge_graphs):
         #    plot_graph(*g, (idx*5) + 1, pos)
-            history_I.append(graph.history_I)
+        history_I.append(graph.history_I)
         history_E.append(graph.history_E)
         history_S.append(graph.history_S)
         history_R.append(graph.history_R)
 
+        history_quarantaine.append(graph.history_quarantined)
+
     # Determine number of simulated days
     num_days = len(graph.history_I)
-
+    print(num_days)
     filename = f"simulation_results_{datetime.now():%Y%m%d_%H%M%S}.npz"
 
+    # pad history_quarantaine to have same length arrays
+    history_quarantaine = np.array([x + [-1]*(max(map(len, history_quarantaine)) - len(x)) 
+                                    for x in history_quarantaine])
+    
     # Save all results to file
     np.savez(
         filename,
@@ -70,11 +76,14 @@ if __name__ == "__main__":
         history_I=history_I,
         history_S=history_S,
         history_R=history_R,
+        history_quarantaine=history_quarantaine,
         num_days=num_days,
         n_total=len(graph.nodes)
     )
 
     graph.plot_history(history_E, history_I, history_S, history_R)
+    graph.plot_quarantained(history_quarantaine)
+
 
 
 
