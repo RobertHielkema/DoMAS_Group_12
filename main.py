@@ -20,7 +20,7 @@ if __name__ == "__main__":
 
     history_I, history_E, history_S, history_R, history_quarantaine = [], [], [], [], []
 
-    for i in range(5):
+    for i in range(100):
         print(f"Simulation run {i+1}/100")
         # initialize graph
         graph = Graph(number_neighbourhoods=num_neighbourhoods, 
