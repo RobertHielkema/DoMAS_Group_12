@@ -1,6 +1,8 @@
 from graph import Graph
 import configparser
 from plot_initial_graph import plot_graph
+import numpy as np
+from datetime import datetime
 
 if __name__ == "__main__":
 
@@ -32,8 +34,6 @@ if __name__ == "__main__":
         edge_graphs = []
         #pos, x_max, y_max = graph._fix_node_positions()
 
-        print(f"App usage rate: {app_usage_rate}")
-
         for i in range(210):
             #print(f"\nTimestep {i+1}\n")
 
@@ -53,10 +53,26 @@ if __name__ == "__main__":
         # uncomment to plot graphs at each 6th timestep
         #for idx, g in enumerate(edge_graphs):
         #    plot_graph(*g, (idx*5) + 1, pos)
-        history_I.append(graph.history_I)
+            history_I.append(graph.history_I)
         history_E.append(graph.history_E)
         history_S.append(graph.history_S)
         history_R.append(graph.history_R)
+
+    # Determine number of simulated days
+    num_days = len(graph.history_I)
+
+    filename = f"simulation_results_{datetime.now():%Y%m%d_%H%M%S}.npz"
+
+    # Save all results to file
+    np.savez(
+        filename,
+        history_E=history_E,
+        history_I=history_I,
+        history_S=history_S,
+        history_R=history_R,
+        num_days=num_days,
+        n_total=len(graph.nodes)
+    )
 
     graph.plot_history(history_E, history_I, history_S, history_R)
 
