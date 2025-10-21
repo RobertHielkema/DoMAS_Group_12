@@ -17,7 +17,8 @@ class Graph:
                  number_residents: int, num_connections: int, 
                  careless_prob: float, rewire_prob: float,
                  include_quarantining: bool,
-                 app_usage_rate: float = 1.0):
+                 app_usage_rate: float = 1.0,
+                 quarantine_probability: float = 0.5):
         """
             Initialize the graph with a given number of neighbourhoods and residents per neighbourhood.
             Each neighbourhood is represented as a Neighourhood object containing Person objects.
@@ -27,8 +28,10 @@ class Graph:
                     careless_prob: float, probability of a person being careless
                     rewire_prob: float, probability of rewiring each edge in the small-world model
                     include_quarantining: bool, whether to include quarantining in the simulation
+                    app_usage_rate: float, percentage of non-careless population to use the app
+                    quarantine_probability: float, probability that a contact will quarantine when notified
         """
-        self.app = App_controller(self)
+        self.app = App_controller(self, quarantine_probability)
         self.neigbourhoods = [Neighourhood(i, number_residents, self.app) for i in range(number_neighbourhoods)]
         self.nodes = [x for n in self.neigbourhoods for x in n.residents]
         self.number_neighbourhoods = number_neighbourhoods

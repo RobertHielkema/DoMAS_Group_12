@@ -16,11 +16,12 @@ if __name__ == "__main__":
     percentage_neighbourhood_contacts = config.getfloat('Parameters', 'percentage_neighbourhood_contacts', fallback=1)
     include_quarantining = config.getboolean('Parameters', 'include_quarantining', fallback=True)
     app_usage_rate = config.getfloat('Parameters', 'app_usage_rate', fallback=1.0)
+    quarantine_probability = config.getfloat('Parameters', 'quarantine_probability', fallback=0.5)
 
 
     history_I, history_E, history_S, history_R, history_quarantaine = [], [], [], [], []
 
-    for i in range(100):
+    for i in range(20):
         print(f"Simulation run {i+1}/100")
         # initialize graph
         graph = Graph(number_neighbourhoods=num_neighbourhoods, 
@@ -29,7 +30,9 @@ if __name__ == "__main__":
                     careless_prob=0.05,
                     rewire_prob=rewire_prob,
                     include_quarantining=include_quarantining,
-                    app_usage_rate=app_usage_rate)
+                    app_usage_rate=app_usage_rate,
+                    quarantine_probability=quarantine_probability
+                    )
         
         edge_graphs = []
         #pos, x_max, y_max = graph._fix_node_positions()

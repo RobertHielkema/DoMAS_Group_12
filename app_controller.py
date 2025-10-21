@@ -1,9 +1,10 @@
 import random
 
 class App_controller:
-    def __init__(self, graph):
+    def __init__(self, graph, quarantine_probability: float):
         self.contacts = {}  # Dictionary mapping each person with the app to their contact history
         self.graph = graph
+        self.quarantine_probability = quarantine_probability  # Probability that a contact will quarantine when notified
     
 
     def set_app_users(self, app_users: dict):
@@ -46,5 +47,5 @@ class App_controller:
         # TODO Decide on quarantine probability and implement it here
         # maybe use a parameter for this
         for contact in recent_contacts:
-            if random.random() < 0.5:   
+            if random.random() < self.quarantine_probability:   
                 self.graph.quarantine_person(contact)
