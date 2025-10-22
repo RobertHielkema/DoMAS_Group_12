@@ -220,13 +220,28 @@ class Graph:
             Quarantine a person by setting their quarantined status to True.
             params: person: Person, the person to quarantine
         """
-        person.quarantined = True
 
-        # check whether a person is correctly quarantined in history
-        if person.infection_status == 'Infected' or person.infection_status == 'Exposed':
-            self.history_quarantined.append(1)
-        else:
-            self.history_quarantined.append(0)
+        def self_test(person: Person) -> bool:
+            """
+                Returns result of self test with probavility of false positive of false negative.
+                returns: bool, True if test is positive, False otherwise
+            """
+
+            # 8,16% false negative rate
+            if person.infection_status == 'Infected':
+                return random.random() > 0.0816
+            
+            # 0.05% false positive rate
+            return random.random() < 0.0005
+
+        if self_test(person):
+            person.quarantined = True
+
+            # check whether a person is correctly quarantined in history
+            if person.infection_status == 'Infected' or person.infection_status == 'Exposed':
+                self.history_quarantined.append(1)
+            else:
+                self.history_quarantined.append(0)
 
 
     def remove_quarantined(self) -> None:
