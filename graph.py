@@ -64,7 +64,7 @@ class Graph:
 
         print(f"Graph initialized with {len(self.nodes)} nodes in {self.number_neighbourhoods} neighbourhoods.")
 
-    def _infect_first_people(self, p=0.01):
+    def _infect_first_people(self, p=0.0148):  #Prob as described in the paper we copy
         """
             Infect a percentage p of the population at the start of the simulation.
             params: p: float, percentage of population to infect
