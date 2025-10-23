@@ -44,8 +44,6 @@ class App_controller:
         # Get recent contacts from the app history
         recent_contacts = [contact for contact, timestep in self.contacts[person]]
 
-        # TODO Decide on quarantine probability and implement it here
-        # maybe use a parameter for this
         for contact in recent_contacts:
             if random.random() < self.quarantine_probability:   
                 self.graph.quarantine_person(contact)

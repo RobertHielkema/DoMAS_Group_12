@@ -53,6 +53,16 @@ if __name__ == "__main__":
             
             graph.delete_neighbourhood_contacts()
 
+            if graph.history_E[-1] == 0 and graph.history_I[-1] == 0:
+                print(f"Simulation ended early at day {i+1} as there are no more Exposed or Infected individuals.")
+                for _ in range(i+1, 210):
+                    graph.history_E.append(0)
+                    graph.history_I.append(0)
+                    graph.history_S.append(graph.history_S[-1])
+                    graph.history_R.append(graph.history_R[-1])
+                    graph.history_quarantined.append(graph.history_quarantined[-1])
+                break
+
         # uncomment to plot graphs at each 6th timestep
         #for idx, g in enumerate(edge_graphs):
         #    plot_graph(*g, (idx*5) + 1, pos)

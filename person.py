@@ -41,7 +41,6 @@ class Person:
                 self.days_quarantined = 0
             
 
-
     def infect(self):
         """
             Determines whether a susceptible individual becomes exposed (infected but not yet infectious)
