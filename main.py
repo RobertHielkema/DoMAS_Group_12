@@ -3,6 +3,7 @@ import configparser
 from plot_initial_graph import plot_graph
 import numpy as np
 from datetime import datetime
+import os
 
 if __name__ == "__main__":
 
@@ -26,7 +27,7 @@ if __name__ == "__main__":
         for quar_prob_rate in pos_quar_prob_rate:
             history_I, history_E, history_S, history_R, history_quarantaine = [], [], [], [], []
 
-            T = 1
+            T = 50  # number of simulation runs
             for i in range(T):
                 print(f"Simulation run {i+1}/{T}")
                 # initialize graph
@@ -85,6 +86,7 @@ if __name__ == "__main__":
             num_days = len(graph.history_I)
             print(num_days)
             filename = f"simulation_results_Q={quar_prob_rate}A={app_usage_rate}_selftest={include_self_test}{datetime.now():%Y%m%d_%H%M%S}.npz"
+            dirname= "results"
 
             # pad history_quarantaine to have same length arrays
             history_quarantaine = np.array([x + [-1]*(max(map(len, history_quarantaine)) - len(x)) 
@@ -92,7 +94,7 @@ if __name__ == "__main__":
             
             # Save all results to file
             np.savez(
-                filename,
+                os.path.join(dirname, filename),
                 history_E=history_E,
                 history_I=history_I,
                 history_S=history_S,
