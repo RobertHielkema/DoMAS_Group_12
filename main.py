@@ -102,8 +102,9 @@ if __name__ == "__main__":
                 n_total=len(graph.nodes)
             )
 
-            graph.plot_history(history_E, history_I, history_S, history_R)
-            graph.plot_quarantained(history_quarantaine)
+            # Uncomment to plot results
+            # graph.plot_history(history_E, history_I, history_S, history_R)
+            # graph.plot_quarantained(history_quarantaine)
 
 
 
