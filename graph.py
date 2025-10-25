@@ -7,6 +7,7 @@ import copy
 from app_controller import App_controller
 from plot import plot_data, plot_quarantained_bar
 import networkx as nx
+import configparser
 
 init(autoreset=True)  # colors reset after each print
 
@@ -18,7 +19,8 @@ class Graph:
                  careless_prob: float, rewire_prob: float,
                  include_quarantining: bool,
                  app_usage_rate: float = 1.0,
-                 quarantine_probability: float = 0.5):
+                 quarantine_probability: float = 0.5,
+                 include_self_test: bool = True):
         """
             Initialize the graph with a given number of neighbourhoods and residents per neighbourhood.
             Each neighbourhood is represented as a Neighourhood object containing Person objects.
@@ -37,6 +39,7 @@ class Graph:
         self.number_neighbourhoods = number_neighbourhoods
         self.number_residents = number_residents
         self.include_quarantining = include_quarantining
+        self.include_self_test = include_self_test
 
 
         self._make_careless(p=careless_prob)
@@ -234,9 +237,18 @@ class Graph:
             # 0.05% false positive rate
             return random.random() < 0.0005
 
-        if self_test(person):
-            person.quarantined = True
+        if self.include_self_test:
+            if self_test(person):
+                person.quarantined = True
 
+                # check whether a person is correctly quarantined in history
+                if person.infection_status == 'Infected' or person.infection_status == 'Exposed':
+                    self.history_quarantined.append(1)
+                else:
+                    self.history_quarantined.append(0)
+        
+        else:
+            person.quarantined = True
             # check whether a person is correctly quarantined in history
             if person.infection_status == 'Infected' or person.infection_status == 'Exposed':
                 self.history_quarantined.append(1)

@@ -15,6 +15,7 @@ if __name__ == "__main__":
     rewire_prob = config.getfloat('Parameters', 'rewire_probability', fallback=0)
     percentage_neighbourhood_contacts = config.getfloat('Parameters', 'percentage_neighbourhood_contacts', fallback=1)
     include_quarantining = config.getboolean('Parameters', 'include_quarantining', fallback=True)
+    include_self_test = config.getboolean('Parameters', 'include_self_test', fallback=True)
 
     pos_app_usage_rate = [0.5,0.6,0.7,0.8,0.9,1]
     pos_quar_prob_rate = [0.5,0.6,0.7,0.8,0.9,1]
@@ -36,7 +37,8 @@ if __name__ == "__main__":
                             rewire_prob=rewire_prob,
                             include_quarantining=include_quarantining,
                             app_usage_rate=app_usage_rate,
-                            quarantine_probability=quarantine_probability
+                            quarantine_probability=quarantine_probability,
+                            include_self_test=include_self_test
                             )
                 
                 edge_graphs = []
@@ -82,7 +84,7 @@ if __name__ == "__main__":
             # Determine number of simulated days
             num_days = len(graph.history_I)
             print(num_days)
-            filename = f"simulation_results_Q={quar_prob_rate}A={app_usage_rate}{datetime.now():%Y%m%d_%H%M%S}.npz"
+            filename = f"simulation_results_Q={quar_prob_rate}A={app_usage_rate}_selftest={include_self_test}{datetime.now():%Y%m%d_%H%M%S}.npz"
 
             # pad history_quarantaine to have same length arrays
             history_quarantaine = np.array([x + [-1]*(max(map(len, history_quarantaine)) - len(x)) 
