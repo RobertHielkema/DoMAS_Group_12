@@ -19,8 +19,8 @@ if __name__ == "__main__":
 
     pos_app_usage_rate = [0.5,0.6,0.7,0.8,0.9,1]
     pos_quar_prob_rate = [0.5,0.6,0.7,0.8,0.9,1]
-    app_usage_rate = config.getfloat('Parameters', 'app_usage_rate', fallback=1.0)
-    quarantine_probability = config.getfloat('Parameters', 'quarantine_probability', fallback=0.5)
+    # app_usage_rate = config.getfloat('Parameters', 'app_usage_rate', fallback=1.0)
+    # quarantine_probability = config.getfloat('Parameters', 'quarantine_probability', fallback=0.5)
 
     for app_usage_rate in pos_app_usage_rate:
         for quar_prob_rate in pos_quar_prob_rate:
@@ -37,7 +37,7 @@ if __name__ == "__main__":
                             rewire_prob=rewire_prob,
                             include_quarantining=include_quarantining,
                             app_usage_rate=app_usage_rate,
-                            quarantine_probability=quarantine_probability,
+                            quarantine_probability=quar_prob_rate,
                             include_self_test=include_self_test
                             )
                 
