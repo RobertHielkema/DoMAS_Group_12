@@ -18,7 +18,7 @@ if __name__ == "__main__":
     include_quarantining = config.getboolean('Parameters', 'include_quarantining', fallback=True)
     include_self_test = config.getboolean('Parameters', 'include_self_test', fallback=False)
 
-    pos_app_usage_rate = [0.5]
+    pos_app_usage_rate = [0.75]
     pos_quar_prob_rate = [0, 0.25, 0.5, 0.75, 1]
     # app_usage_rate = config.getfloat('Parameters', 'app_usage_rate', fallback=1.0)
     # quarantine_probability = config.getfloat('Parameters', 'quarantine_probability', fallback=0.5)
