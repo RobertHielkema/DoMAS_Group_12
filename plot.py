@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def plot_data(x, history_E, history_I, history_S, history_R, n_total):
+def plot_data(x, history_E, history_I, history_S, history_R, n_total, save_path=None):
 
     # uncomment to use moving average
     # count moving average with window size 2
@@ -68,9 +68,12 @@ def plot_data(x, history_E, history_I, history_S, history_R, n_total):
 
     plt.tight_layout()
 
-    plt.show()
+    if save_path:
+        plt.savefig(save_path, dpi=300)
+    else:
+        plt.show()
     
-def plot_quarantained_bar(history_quarantained):
+def plot_quarantained_bar(history_quarantained, save_path=None):
     infected_means = []
     non_infected_means = []
     total_counts = []
@@ -122,4 +125,7 @@ def plot_quarantained_bar(history_quarantained):
             ha='center', va='center', color='white', fontsize=12, fontweight='bold'
         )
 
-    plt.show()
+    if save_path:
+        plt.savefig(save_path, dpi=300)
+    else:
+        plt.show()
