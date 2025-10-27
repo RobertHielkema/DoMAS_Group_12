@@ -5,7 +5,7 @@ from plot import plot_data, plot_quarantained_bar
 
 folder_path = "results/"
 
-plots_folder = os.path.join(folder_path, "plots")
+plots_folder = os.path.join(folder_path, "plots2")
 os.makedirs(plots_folder, exist_ok=True)
 
 simulation_files = [f for f in os.listdir(folder_path) if f.endswith(".npz")]

@@ -45,6 +45,7 @@ def plot_data(x, history_E, history_I, history_S, history_R, n_total, save_path=
     axs[0].plot(x, history_I, color="#ff0000", label='Infected [I]')
     axs[0].set_ylabel('Persons')
     axs[0].set_xlabel('Time [Days]')
+    axs[0].set_ylim(0, 270)
     axs[0].legend(loc='upper right')
     axs[0].set_title('Average number of persons in [E] and [I] states')
     axs[0].set_xticks(range(1, 210, 10))
