@@ -125,8 +125,10 @@ def plot_quarantained_bar(history_quarantained, save_path=None):
             f"{pct:.1f}%",
             ha='center', va='center', color='white', fontsize=12, fontweight='bold'
         )
+    plt.tight_layout()
 
     if save_path:
         plt.savefig(save_path, dpi=300)
     else:
         plt.show()
+    plt.close()

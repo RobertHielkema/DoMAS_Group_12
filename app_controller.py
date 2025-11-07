@@ -46,4 +46,8 @@ class App_controller:
 
         for contact in recent_contacts:
             if random.random() < self.quarantine_probability:   
+                
+                if contact.quarantined:  # skip as person is already in quarantine
+                    return
+                
                 self.graph.quarantine_person(contact)
