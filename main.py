@@ -18,10 +18,8 @@ if __name__ == "__main__":
     include_quarantining = config.getboolean('Parameters', 'include_quarantining', fallback=True)
     include_self_test = config.getboolean('Parameters', 'include_self_test', fallback=False)
 
-    pos_app_usage_rate = [0.75]
+    pos_app_usage_rate = [0, 0.25, 0.5, 0.75, 1]
     pos_quar_prob_rate = [0, 0.25, 0.5, 0.75, 1]
-    # app_usage_rate = config.getfloat('Parameters', 'app_usage_rate', fallback=1.0)
-    # quarantine_probability = config.getfloat('Parameters', 'quarantine_probability', fallback=0.5)
 
     for app_usage_rate in pos_app_usage_rate:
         for quar_prob_rate in pos_quar_prob_rate:
@@ -31,16 +29,17 @@ if __name__ == "__main__":
             for i in range(T):
                 print(f"Simulation run {i+1}/{T}")
                 # initialize graph
-                graph = Graph(number_neighbourhoods=num_neighbourhoods, 
-                            number_residents=residents_per_neighbourhood,
-                            num_connections=num_connection,
-                            careless_prob=0.05,
-                            rewire_prob=rewire_prob,
-                            include_quarantining=include_quarantining,
-                            app_usage_rate=app_usage_rate,
-                            quarantine_probability=quar_prob_rate,
-                            include_self_test=include_self_test
-                            )
+                graph = Graph(
+                    number_neighbourhoods=num_neighbourhoods, 
+                    number_residents=residents_per_neighbourhood,
+                    num_connections=num_connection,
+                    careless_prob=0.05,
+                    rewire_prob=rewire_prob,
+                    include_quarantining=include_quarantining,
+                    app_usage_rate=app_usage_rate,
+                    quarantine_probability=quar_prob_rate,
+                    include_self_test=include_self_test
+                )
                 
                 edge_graphs = []
                 #pos, x_max, y_max = graph._fix_node_positions()
